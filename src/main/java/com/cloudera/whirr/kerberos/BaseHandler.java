@@ -17,9 +17,11 @@
  */
 package com.cloudera.whirr.kerberos;
 
+import static org.apache.whirr.RolePredicates.role;
 import static org.jclouds.scriptbuilder.domain.Statements.call;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.whirr.ClusterSpec;
@@ -40,7 +42,14 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport {
 
 	@Override
 	protected void beforeConfigure(ClusterActionEvent event) throws IOException {
-		addStatement(event, call("configure_kerberos_client"));
+		try {
+			addStatement(
+			  event,
+			  call("configure_kerberos_client", "-h", event.getCluster()
+			    .getInstanceMatching(role(KerberosServerHandler.ROLE))
+			    .getPublicHostName()));
+		} catch (NoSuchElementException e) {
+			addStatement(event, call("configure_kerberos_client", "-h", "localhost"));
+		}
 	}
-
 }

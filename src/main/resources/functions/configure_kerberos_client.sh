@@ -18,7 +18,17 @@
 set -x
 
 function configure_kerberos_client() {
-  sed -i -e "s/kerberos\.example\.com/$HOSTNAME/" /etc/krb5.conf
-  sed -i -e "s/example\.com/$HOSTNAME/" /etc/krb5.conf
+  local OPTIND
+  local OPTARG
+  KERBEROS_SERVER_HOST=localhost
+  while getopts "h:" OPTION; do
+    case $OPTION in
+    h)
+      KERBEROS_SERVER_HOST="$OPTARG"
+      ;;
+    esac
+  done
+  sed -i -e "s/kerberos\.example\.com/$KERBEROS_SERVER_HOST/" /etc/krb5.conf
+  sed -i -e "s/example\.com/$KERBEROS_SERVER_HOST/" /etc/krb5.conf
   sed -i -e "s/EXAMPLE\.COM/CDHCLUSTER\.COM/" /etc/krb5.conf
 }

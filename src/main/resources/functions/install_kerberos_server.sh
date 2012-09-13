@@ -19,8 +19,8 @@ set -x
 
 function install_kerberos_server() {
   if which dpkg &> /dev/null; then
-    retry_apt_get -y install krb5-libs krb5-workstation
+    retry_apt_get -y install krb5-server
   elif which rpm &> /dev/null; then
-    retry_yum install -y krb5-libs krb5-workstation
+    retry_yum install -y krb5-server
   fi
 }

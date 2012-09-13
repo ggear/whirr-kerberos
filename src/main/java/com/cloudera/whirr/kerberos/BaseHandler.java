@@ -37,6 +37,11 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport {
 	@Override
 	protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
 		addStatement(event, call("configure_hostnames"));
+		addStatement(event, call("retry_helpers"));
+		addStatement(
+		  event,
+		  call(getInstallFunction(event.getClusterSpec().getConfiguration(),
+		    "java", "install_openjdk")));
 		addStatement(event, call("install_kerberos_client"));
 	}
 

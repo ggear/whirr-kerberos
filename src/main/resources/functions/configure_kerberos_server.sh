@@ -34,17 +34,21 @@ END
   ./run_kdb5_util
   rm -rf run_kdb5_util
   sed -i -e "s/EXAMPLE\.COM/CDHCLUSTER\.COM/" /var/kerberos/krb5kdc/kadm5.acl
-  cat >> run_addpinc_whirr <<END
+  cat >> run_addpinc <<END
 #!/usr/bin/expect -f
 set timeout 5000
-spawn sudo kadmin.local -q "addprinc whirr/admin@CDHCLUSTER.COM"
-expect {Enter password for principal "whirr/admin@CDHCLUSTER.COM": } { send "whirr\r" }
-expect {Re-enter password for principal "whirr/admin@CDHCLUSTER.COM": } { send "whirr\r" }
+set principal_primary [lindex \$argv 0]
+set principal_instance [lindex \$argv 1]
+spawn sudo kadmin.local -q "addprinc \$principal_primary\$principal_instance@CDHCLUSTER.COM"
+expect -re {Enter password for principal .*} { send "\$principal_primary\r" }
+expect -re {Re-enter password for principal .* } { send "\$principal_primary\r" }
 expect EOF
 END
-  chmod +x run_addpinc_whirr
-  ./run_addpinc_whirr
-  rm -rf run_addpinc_whirr
+  chmod +x run_addpinc
+  ./run_addpinc whirr /admin
+  ./run_addpinc hdfs
+  ./run_addpinc cdhuser
+  rm -rf ./run_addpinc
   service krb5kdc start
   service kadmin start
   chkconfig krb5kdc on
